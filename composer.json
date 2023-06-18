@@ -1,0 +1,23 @@
+{
+    "name": "efthakhar/dpos",
+    "description": "A simple form data storage for wordpress",
+    "type": "wordpress-plugin",
+    "license": "GPLv2",
+    "authors": [{
+        "name": "Efthakhar Bin Alam",
+        "email": "efthakharbin@gmail.com"
+    }],
+    "minimum-stability": "dev",
+    
+    "autoload": {
+        "psr-4": {
+            "FormCat\\": "includes/"          
+        }
+        
+    },
+    "require": {
+        "illuminate/database": "10.x-dev",
+        "illuminate/events": "10.x-dev"
+    }
+
+}
