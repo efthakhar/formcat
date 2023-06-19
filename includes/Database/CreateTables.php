@@ -40,7 +40,8 @@ class CreateTables {
 
 		$sql = "CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}formcat_submissions` (
 			`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			`date` datetime,
+			`form_id` bigint(20) unsigned NOT NULL,
+			-- `date` datetime,
             -- `custom_data` longtext,
 			PRIMARY KEY (`id`)
 		) {$charset_collate};";
@@ -56,7 +57,7 @@ class CreateTables {
 			`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			`submission_id` bigint(20) unsigned NOT NULL,
 			`field` varchar(100) NOT NULL,
-			`value` varchar(100) NOT NULL,
+			`value` longtext,
 			
 			PRIMARY KEY (`id`)
 		) {$charset_collate};";
