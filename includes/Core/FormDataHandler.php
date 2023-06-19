@@ -4,6 +4,7 @@ namespace FormCat\Core;
 
 use FormCat\Traits\Singleton;
 use Illuminate\Database\Capsule\Manager as DB;
+use WPCF7_ContactForm;
 
 /*
  * This Class is responsible for Handling Form Data
@@ -15,8 +16,18 @@ class FormDataHandler {
 	 * Initialize FormDataHandler Class
 	 */
 	public function __construct() {
+		//add_action('formcat_activate', [ $this, 'sync_exsisting_cf7forms' ] );
+		//add_filter('parse_request', [ $this, 'sync_exsisting_cf7forms' ] );
 		add_action('wpcf7_after_save', [ $this, 'handle_cf7form_save' ] );
 		add_action('wpcf7_before_send_mail', [ $this, 'handle_cf7form_submission' ] );
+	}
+
+	public function sync_exsisting_cf7forms() {
+		$contact_forms = WPCF7_ContactForm::find();
+
+		foreach ($contact_forms as $cf7_form) {
+			$cf7_form->save();
+		}
 	}
 
 	public function handle_cf7form_save($cf7_form) {
@@ -34,17 +45,24 @@ class FormDataHandler {
 			}
 		}
 
-		if (
-			DB::table($wpdb->formcat_forms)
-				->where('plugin_form_id', $cf7_form->id)
-				->where('plugin_name', 'cf7', )
-				->count() > 0
-		) {
+		$previusly_saved_form = DB::table($wpdb->formcat_forms)
+		->where('plugin_form_id', $cf7_form->id)
+		->where('plugin_name', 'cf7', )->first();
+
+		$previusly_saved_form_fields = json_decode($previusly_saved_form->fields,true);
+		$duplicate_free_new_form_fields = array_unique(array_merge($form_fields_infos, $previusly_saved_form_fields), SORT_REGULAR);
+
+		// echo '<pre>';
+		// var_dump($duplicate_free_fields);
+		// echo '</pre>';
+		// wp_die();
+		
+		if ($previusly_saved_form) {
 			DB::table($wpdb->formcat_forms)
 				->where('plugin_form_id', $cf7_form->id)
 				->where('plugin_name', 'cf7', )
 				->update([
-					'fields'         => json_encode($form_fields_infos),
+					'fields'         => json_encode($duplicate_free_new_form_fields),
 					'plugin_name'    => 'cf7',
 					'form_name'      => $cf7_form->title(),
 					'plugin_form_id' => $cf7_form->id,
@@ -78,7 +96,7 @@ class FormDataHandler {
 				array_push($entries, [
 					'submission_id' => $form_submission_id,
 					'field'         => $field->name,
-					'value'         => $_REQUEST[$field->name],
+					'value'         => $_REQUEST[$field->name]??NULL,
 				]);
 			}
 		}

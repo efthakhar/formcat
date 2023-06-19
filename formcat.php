@@ -33,10 +33,12 @@ class FormCat {
 		$this->configure_illuminate_database();
 		$this->wpdb_table_shortcuts();
 
+		
 		register_activation_hook( __FILE__, [ $this, 'activate' ] );
 		register_deactivation_hook( __FILE__, [ $this, 'deactivate' ] );
-
+		
 		add_action( 'plugins_loaded', [ $this, 'init_plugin' ] );
+		
 	}
 
 	public function define_constants() {
@@ -53,14 +55,15 @@ class FormCat {
 
 	public function activate() {
 		new CreateTables();
+
+		do_action( 'formcat_activate');
 	}
 
 	public function init_plugin() {
 		$this->includes();
+		do_action( 'formcat_loaded' );
 		$this->init_classes();
 		// $this->init_hooks();
-
-		do_action( 'formcat_loaded' );
 	}
 
 	public function includes() {
