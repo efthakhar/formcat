@@ -26,7 +26,8 @@ class CreateTables {
 			`plugin_form_id` bigint(20) unsigned NOT NULL,
 			`form_name` varchar(255) NOT NULL,
 			`fields` text,
-			-- { {'name':'field_name','type':'file/text/email','alias':'Email of Person'}}
+			`fields_alias` text,
+			`fields_visible_in_datatable` text,
 			PRIMARY KEY (`id`)
 		) {$charset_collate};";
 

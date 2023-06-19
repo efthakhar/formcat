@@ -101,7 +101,9 @@ class FormCat {
 	public function remove_database_tables() {
 		global $wpdb;
 		$tableArray = [
+			$wpdb->formcat_forms,
 			$wpdb->formcat_submissions,
+			$wpdb->formcat_entries
 		];
 
 		foreach ($tableArray as $tablename) {
