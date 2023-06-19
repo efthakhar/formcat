@@ -49,15 +49,16 @@ class FormDataHandler {
 		->where('plugin_form_id', $cf7_form->id)
 		->where('plugin_name', 'cf7', )->first();
 
-		$previusly_saved_form_fields = json_decode($previusly_saved_form->fields,true);
-		$duplicate_free_new_form_fields = array_unique(array_merge($form_fields_infos, $previusly_saved_form_fields), SORT_REGULAR);
-
 		// echo '<pre>';
 		// var_dump($duplicate_free_fields);
 		// echo '</pre>';
 		// wp_die();
 		
 		if ($previusly_saved_form) {
+
+			$previusly_saved_form_fields = json_decode($previusly_saved_form->fields,true);
+			$duplicate_free_new_form_fields = array_unique(array_merge($form_fields_infos, $previusly_saved_form_fields), SORT_REGULAR);
+	
 			DB::table($wpdb->formcat_forms)
 				->where('plugin_form_id', $cf7_form->id)
 				->where('plugin_name', 'cf7', )
@@ -92,11 +93,11 @@ class FormDataHandler {
 		$form_fields = json_decode($form_details->fields);
 
 		foreach ($form_fields as $field) {
-			if ('file' != $field->type && 'submit' != $field->type ) {
+			if ('file' != $field->type && 'submit' != $field->type &&  $_REQUEST[$field->name] ) {
 				array_push($entries, [
 					'submission_id' => $form_submission_id,
 					'field'         => $field->name,
-					'value'         => $_REQUEST[$field->name]??NULL,
+					'value'         => $_REQUEST[$field->name],
 				]);
 			}
 		}
