@@ -16,7 +16,7 @@ use FormCat\Assets;
 use FormCat\Core\FormDataHandler;
 use FormCat\Database\CreateTables;
 use FormCat\Pages;
-use FormCat\Api\Forms;
+// use FormCat\Api\Forms;
 use FormCat\Traits\Singleton;
 
 // don't call the file directly
@@ -75,7 +75,8 @@ class FormCat {
 		Assets::instance();
 		FormDataHandler::instance();
 		
-		new Forms();
+		new FormCat\Api\Forms();
+		new FormCat\Api\Submissions();
 	}
 
 	/*
