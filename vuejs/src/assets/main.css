@@ -1,3 +1,8 @@
 /* @import './base.css'; */
 @import './bootstrap.css';
 
+/* Utility classes */
+.minwidth-60{min-width: 60px;}
+.minwidth-100{min-width: 100px;}
+.minwidth-150{min-width: 150px;}
+.minwidth-200{min-width: 200px;}

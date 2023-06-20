@@ -13,7 +13,7 @@ class Forms {
 		register_rest_route( 'formcat/v1', '/forms/', [
 			'methods'  => 'GET',
 			'callback' => [$this, 'get_forms'],
-		] );
+		]);
 	}
 
 	public function get_forms( $request ) {
