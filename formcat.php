@@ -34,12 +34,10 @@ class FormCat {
 		$this->configure_illuminate_database();
 		$this->wpdb_table_shortcuts();
 
-		
 		register_activation_hook( __FILE__, [ $this, 'activate' ] );
 		register_deactivation_hook( __FILE__, [ $this, 'deactivate' ] );
-		
+
 		add_action( 'plugins_loaded', [ $this, 'init_plugin' ] );
-		
 	}
 
 	public function define_constants() {
@@ -49,12 +47,13 @@ class FormCat {
 
 	public function wpdb_table_shortcuts() {
 		global $wpdb;
-		$wpdb->formcat_forms = $wpdb->prefix . 'formcat_forms';
+		$wpdb->formcat_forms       = $wpdb->prefix . 'formcat_forms';
 		$wpdb->formcat_submissions = $wpdb->prefix . 'formcat_submissions';
-		$wpdb->formcat_entries = $wpdb->prefix . 'formcat_entries';
+		$wpdb->formcat_entries     = $wpdb->prefix . 'formcat_entries';
 	}
 
 	public function activate() {
+		$this->formcat_custom_capabilities('add');
 		new CreateTables();
 
 		do_action( 'formcat_activate');
@@ -74,7 +73,7 @@ class FormCat {
 		Pages::instance();
 		Assets::instance();
 		FormDataHandler::instance();
-		
+
 		new FormCat\Api\Forms();
 		new FormCat\Api\Submissions();
 	}
@@ -102,6 +101,7 @@ class FormCat {
 	}
 
 	public function deactivate() {
+		$this->formcat_custom_capabilities('remove');
 		$this->remove_database_tables();
 	}
 
@@ -110,11 +110,32 @@ class FormCat {
 		$tableArray = [
 			$wpdb->formcat_forms,
 			$wpdb->formcat_submissions,
-			$wpdb->formcat_entries
+			$wpdb->formcat_entries,
 		];
 
 		foreach ($tableArray as $tablename) {
 			$wpdb->query("DROP TABLE IF EXISTS {$tablename}");
+		}
+	}
+
+	public function formcat_custom_capabilities($action) {
+		$capabilities = [
+			'formcat_create_forms',
+			'formcat_view_forms',
+			'formcat_edit_forms',
+			'formcat_delete_forms',
+			'formcat_create_submissions',
+			'formcat_view_submissions',
+			'formcat_edit_submissions',
+			'formcat_delete_submissions',
+		];
+
+		foreach ($capabilities as $capability) {
+			$admin_role = get_role('administrator');
+
+			if ($admin_role) {
+				'add' == $action ? $admin_role->add_cap($capability) : $admin_role->remove_cap($capability);
+			}
 		}
 	}
 }

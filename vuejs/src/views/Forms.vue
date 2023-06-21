@@ -4,6 +4,7 @@ import axios from 'axios'
 
 import Loader from "../components/shared/Loader.vue";
 import Pagination from "../components/shared/Pagination.vue"
+import router from '../router';
 
 const forms = ref([]);
 const loading = ref(false)
@@ -14,7 +15,15 @@ const per_page = ref(10)
 async function fetchForms(page = current_page.value, perpage = per_page.value) {
   loading.value = true
   await axios
-    .get(`/wp-json/formcat/v1/forms?page=${page}&perpage=${perpage}`)
+    .get(
+      `/wp-json/formcat/v1/forms?page=${page}&perpage=${perpage}`,
+      {
+        headers: {
+          'content-type': 'application/json',
+          'X-WP-Nonce': formcat.nonce
+        }
+      }
+    )
     .then((response) => {
       forms.value = response.data.data;
       current_page.value = response.data.current_page
@@ -56,19 +65,18 @@ onMounted(() => {
               <td>{{ form.form_name }}</td>
               <td>{{ form.plugin_name }}</td>
               <td>
-                <button class="btn btn-sm btn-primary">submissions</button>
+                <button class="btn btn-sm btn-primary"
+                  @click="router.push({ name: 'submissions', params: { form_id: form.id } })">submissions</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
       <!-- padination and per page -->
-      <Pagination 
-        v-if="loading == false && forms.length > 0" 
-        @pageChange="(currentPage)=>fetchForms(currentPage,per_page)"
-        @perPageChange="(perpage) => fetchForms(1, perpage)" :total_pages="total_pages"
-        :current_page="current_page" :per_page="per_page" 
-      />
+      <Pagination v-if="loading == false && forms.length > 0"
+        @pageChange="(currentPage) => fetchForms(currentPage, per_page)"
+        @perPageChange="(perpage) => fetchForms(1, perpage)" :total_pages="total_pages" :current_page="current_page"
+        :per_page="per_page" />
     </div>
   </div>
 </template>

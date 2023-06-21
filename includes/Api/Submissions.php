@@ -3,6 +3,7 @@
 namespace Formcat\Api;
 
 use Illuminate\Database\Capsule\Manager as DB;
+use WP_Error;
 
 class Submissions {
 	public function __construct() {
@@ -11,8 +12,9 @@ class Submissions {
 
 	public function formcat_submissions_routes() {
 		register_rest_route( 'formcat/v1', '/submissions/', [
-			'methods'  => 'GET',
-			'callback' => [$this, 'get_submissions'],
+			'methods'             => 'GET',
+			'callback'            => [$this, 'get_submissions'],
+			'permission_callback' => [ $this, 'get_submissions_permissions_check' ],
 		]);
 	}
 
@@ -23,7 +25,8 @@ class Submissions {
 		global $wpdb;
 
 		$form_details                = DB::table($wpdb->formcat_forms)->find($form_id);
-		$fields_visible_in_datatable = json_decode($form_details->fields_visible_in_datatable);
+		$fields_visible_in_datatable = NULL !== $form_details ? json_decode($form_details->fields_visible_in_datatable) : [];
+		$fields_alias = NULL !== $form_details ? json_decode($form_details->fields_alias) : [];
 		$submissions                 = DB::table($wpdb->formcat_submissions)
 			->where('form_id', $form_id)
 			->paginate( $perpage, 'id', 'page', $page);
@@ -52,8 +55,17 @@ class Submissions {
 			'entries'                     => $entries,
 			'submission_ids'              => $submission_ids,
 			'fields_visible_in_datatable' => $fields_visible_in_datatable,
+			'fields_alias' => $fields_alias,
 		];
 
 		return rest_ensure_response( $data);
+	}
+
+	public function get_submissions_permissions_check( $request ) {
+		if ( current_user_can( 'formcat_view_submissions' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'rest_forbidden', 'you cannot view forms', [ 'status' => 403 ] );
 	}
 }

@@ -26,7 +26,7 @@ class Assets{
         wp_enqueue_style( 'formcat_main_css',  FORMCAT_DIR.'vuejs/dist/index.css' );
         wp_enqueue_script('formcat_main_js', FORMCAT_DIR.'vuejs/dist/index.js',[],time() ); 
         
-        wp_localize_script('formcat_main_js','formcatApi',
+        wp_localize_script('formcat_main_js','formcat',
             [
                 'root' => esc_url_raw( rest_url() ),
                 'nonce' => wp_create_nonce( 'wp_rest' )

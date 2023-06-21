@@ -20,7 +20,7 @@ class FormDataHandler {
 		// add_filter('parse_request', [ $this, 'sync_exsisting_cf7forms' ] );
 		add_action('wpcf7_after_save', [ $this, 'handle_cf7form_save' ] );
 		add_action('wpcf7_before_send_mail', [ $this, 'handle_cf7form_submission'] );
-		add_action('delete_post', [$this, 'cf7_form_delete'], 10,2);
+		add_action('delete_post', [$this, 'cf7_form_delete'], 10, 2);
 	}
 
 	public function sync_exsisting_cf7forms() {
@@ -31,7 +31,7 @@ class FormDataHandler {
 		}
 	}
 
-	public function cf7_form_delete($id,$post) {
+	public function cf7_form_delete($id, $post) {
 		if (get_post_type($id) === 'wpcf7_contact_form') {
 			global $wpdb;
 			$form = DB::table($wpdb->formcat_forms)->where('plugin_form_id', $id)->first();
@@ -51,10 +51,12 @@ class FormDataHandler {
 
 		if ($cf7_form) {
 			foreach ($cf7_form_fields as $field) {
-				array_push($form_fields_infos, [
-					'name' => $field->name,
-					'type' => $field->type,
-				]);
+				if ('submit' !== $field->type) {
+					array_push($form_fields_infos, [
+						'name' => $field->name,
+						'type' => $field->type,
+					]);
+				}
 			}
 		}
 
@@ -85,8 +87,10 @@ class FormDataHandler {
 			$fields_alias   = [];
 
 			foreach ($cf7_form_fields as $field) {
-				array_push($visible_fields, $field->name);
-				array_push($fields_alias, [ $field->name => $field->name ] );
+				if ('submit' !== $field->type) {
+					$visible_fields[] = $field->name;
+					$fields_alias[$field->name] = $field->name  ;
+				}
 			}
 			DB::table($wpdb->formcat_forms)->insert([
 				'fields'                      => json_encode($form_fields_infos),
